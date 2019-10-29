@@ -13,7 +13,7 @@ int main(int, char**)
 	namedWindow("Image",1);
 	namedWindow("Detection",1);
 	namedWindow("Contours",1);
-	for(;;)
+	while(true)
 	{
 		int X,Y,DIM,index,indexNB;
 		unsigned int numc;
@@ -50,7 +50,7 @@ int main(int, char**)
 		for(numc = 0; numc < contours.size(); numc++ )
 			drawContours( Dessin, contours, numc, 255);
 		imshow("Contours", Dessin);
-		if(waitKey(30) >= 0) break;
+		if(waitKey(30) != 255) break;
 	}
 	return 0;
 }

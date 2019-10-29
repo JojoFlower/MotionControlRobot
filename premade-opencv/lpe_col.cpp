@@ -3,6 +3,13 @@
 using namespace cv;
 using namespace std;
 
+struct color {
+    double r;
+    double g;
+	double b;
+};
+
+
 int Traitement(VideoCapture cap,int seuil,Vec3b couleur)
 {
 	Mat trame,gris,flou,contx,conty,cont,contbin;
@@ -30,14 +37,15 @@ int Traitement(VideoCapture cap,int seuil,Vec3b couleur)
 		if (hierarchy[numc][3]<0)
 			drawContours( marqueurs, contours, numc, index++);
 	watershed(trame,marqueurs);
-	vector<double[3]> couleurs;
+	vector<color> couleurs;
 	vector<double> indexcoul;
 	couleurs.reserve(nbcont);
 	indexcoul.reserve(nbcont);
 	for(index=0;index<nbcont;index++)
 	{
-		for(k=0;k<3;k++)
-			couleurs[index][k]=0.0;
+		couleurs[index].r=0.0;
+		couleurs[index].g=0.0;
+		couleurs[index].b=0.0;
 		indexcoul[index]=0.0;
 	}
 	for(x=0;x<X;x++)
@@ -47,28 +55,37 @@ int Traitement(VideoCapture cap,int seuil,Vec3b couleur)
 			if (index>=0)
 			{
 				indexcoul[index]++;
-				for (k=0;k<3;k++)
-					couleurs[index][k]=
-					couleurs[index][k]+trame.at<Vec3b>(x,y)[k];
+				couleurs[index].r=
+				couleurs[index].r+trame.at<Vec3b>(x,y)[0];
+				couleurs[index].g=
+				couleurs[index].g+trame.at<Vec3b>(x,y)[1];
+				couleurs[index].b=
+				couleurs[index].b+trame.at<Vec3b>(x,y)[2];
 			}                    
 		}
-	for(index=0;index<nbcont;index++)
-		for (k=0;k<3;k++)
-			couleurs[index][k]/=indexcoul[index];
+	for(index=0;index<nbcont;index++){
+		couleurs[index].r/=indexcoul[index];
+		couleurs[index].g/=indexcoul[index];
+		couleurs[index].b/=indexcoul[index];
+	}
 	for(x=0;x<X;x++)
 		for(y=0;y<Y;y++)
 		{
 			index=marqueurs.at<int>(x,y)-1;
-			if (index>=0)
-				for (k=0;k<3;k++)
-					trame.at<Vec3b>(x,y)[k]=couleurs[index][k];
+			if (index>=0){
+				trame.at<Vec3b>(x,y)[0]=couleurs[index].r;
+				trame.at<Vec3b>(x,y)[1]=couleurs[index].g;
+				trame.at<Vec3b>(x,y)[2]=couleurs[index].b;
+			}
 			else
 				trame.at<Vec3b>(x,y)=couleur;
 		}
 	namedWindow("LPE",1);
 	imshow("LPE", trame);
-	if(waitKey(30) >= 0)
+	if(waitKey(30) != 255){
+		cout << "End of process";
 		return true;
+	}
 	else
 		return false;
 }
