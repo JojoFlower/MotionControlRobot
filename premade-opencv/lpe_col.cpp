@@ -22,7 +22,7 @@ int Traitement(VideoCapture cap,int seuil,Vec3b couleur)
 	namedWindow("Image",1);
 	imshow("Image", trame);
 	cvtColor(trame,gris,COLOR_BGR2GRAY);
-	GaussianBlur(gris,flou,Size(5,5),0,0);
+	GaussianBlur(gris,flou,Size(7,7),1.5,1.5);
 	Sobel(flou,contx,CV_64F,1,0);
 	Sobel(flou,conty,CV_64F,0,1);
 	cont=abs(contx)+abs(conty);

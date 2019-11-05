@@ -1,4 +1,9 @@
 #include "opencv2/opencv.hpp"
+#include <complex>
+#include <iostream>
+#include <valarray>
+#include <fftw3.h>
+
 
 using namespace cv;
 using namespace std;
@@ -46,11 +51,42 @@ int main(int, char**)
 		}
 		imshow("Detection", Binaire);
 		findContours( Binaire, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+		std::cout << "Nb contour: " << contours.size() << endl;
+		std::cout << "Long contour: " << contours.at(0).size() << endl;
+		std::cout << "(x,y): " << contours.at(0).at(0).x << ", " << contours.at(0).at(0).y << endl;
+		unsigned int max = 0;
+		int j = 0;
+		std:vector<Point> contour;
+		for(auto i = contours.begin(); i != contours.end(); i++){
+			if(i->size() > max){
+				max = i->size();
+				numc = j;
+				contour = *i;
+			};
+			j++;
+		};
+		unsigned int contour_size = contour.size();
+		fftw_complex in[contour_size], out[contour_size];	
+		fftw_plan p;	
+		for(unsigned int i = 0; i < contour_size; i++){
+			in[i][0] = contour[i].x;
+			in[i][1] = contour[i].y;
+		}
+		p = fftw_plan_dft_1d(contour_size, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+		fftw_execute(p);
+		fftw_destroy_plan(p);
+		fftw_cleanup();
+
+		std::cout << "Contour max: " << contour.size() << endl;
+		for(int i =0; i<15; i++){
+			std::cout << out[i][0] << ", " << out[i][1] << endl;
+		}
 		Mat Dessin = Mat::zeros(X,Y, CV_8UC1);
-		for(numc = 0; numc < contours.size(); numc++ )
-			drawContours( Dessin, contours, numc, 255);
+		// for(numc = 0; numc < contours.size(); numc++ )
+		// 	drawContours( Dessin, contours, numc, 255);
+		drawContours( Dessin, contours, numc, 255);
 		imshow("Contours", Dessin);
-		if(waitKey(30) != 255) break;
+		if(waitKey(3000) != 255) break;
 	}
 	return 0;
 }
