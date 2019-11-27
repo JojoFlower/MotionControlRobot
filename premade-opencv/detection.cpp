@@ -3,7 +3,7 @@
 #include <iostream>
 #include <valarray>
 #include <fftw3.h>
-
+#include <opencv2/plot.hpp>
 
 using namespace cv;
 using namespace std;
@@ -66,27 +66,61 @@ int main(int, char**)
 			j++;
 		};
 		unsigned int contour_size = contour.size();
+		unsigned int sum_x;
+		unsigned int sum_y;
 		fftw_complex in[contour_size], out[contour_size];	
 		fftw_plan p;	
 		for(unsigned int i = 0; i < contour_size; i++){
 			in[i][0] = contour[i].x;
 			in[i][1] = contour[i].y;
+			sum_x += contour[i].x;
+			sum_y += contour[i].y;
 		}
+		sum_x = sum_x/contour_size;
+		sum_y = sum_y/contour_size;
+		for(unsigned int i = 0; i < contour_size; i++){
+			in[i][0] = in[i][0]/sum_x;
+			in[i][1] = in[i][1]/sum_y;
+		}
+
 		p = fftw_plan_dft_1d(contour_size, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
 		fftw_execute(p);
 		fftw_destroy_plan(p);
 		fftw_cleanup();
-
-		std::cout << "Contour max: " << contour.size() << endl;
-		for(int i =0; i<15; i++){
-			std::cout << out[i][0] << ", " << out[i][1] << endl;
+		for(unsigned int i = 0; i < contour_size; i++){
+			out[i][0] = in[i][0]/contour_size;
+			in[i][1] = in[i][1]/contour_size;
 		}
+		// std::cout << "Contour max: " << contour.size() << endl;
+		// for(int i =0; i<15; i++){
+		// 	std::cout << out[i][0] << ", " << out[i][1] << endl;
+		// }
+		Mat xData, yData, display;
+		Ptr<plot::Plot2d> plot;
+		xData.create(1, 100, CV_64F);//1 Row, 100 columns, Double
+		yData.create(1, 100, CV_64F);
+
+		for(int i = 0; i<100; ++i)
+		{
+			xData.at<double>(i) = i/10.0;
+			yData.at<double>(i) = i/10.0;
+		}
+		plot = plot::createPlot2d(xData, yData);
+		plot->setPlotSize(100, 1000);
+		plot->setMaxX(10);
+		plot->setMinX(0);
+		plot->setMaxY(100);
+		plot->setMinY(-1);
+		plot->render(display);
+		imshow("Plot", display);
+		waitKey();
+
 		Mat Dessin = Mat::zeros(X,Y, CV_8UC1);
 		// for(numc = 0; numc < contours.size(); numc++ )
 		// 	drawContours( Dessin, contours, numc, 255);
 		drawContours( Dessin, contours, numc, 255);
 		imshow("Contours", Dessin);
-		if(waitKey(3000) != 255) break;
+		if(waitKey(30) != 255) break;
 	}
 	return 0;
 }
