@@ -4,7 +4,7 @@
 #include <valarray>
 #include <fftw3.h>
 
-
+using namespace plt = matplotlibcpp;
 using namespace cv;
 using namespace std;
 
@@ -12,6 +12,8 @@ int main(int, char**)
 {
 	int seuil=30;
 	char detect;
+	int cmin = -10;
+	int cmax = 10;
 	VideoCapture cap(0); 
 	if(!cap.isOpened())  
 		return -1;
@@ -68,7 +70,7 @@ int main(int, char**)
 		unsigned int contour_size = contour.size();
 		unsigned int sum_x;
 		unsigned int sum_y;
-		fftw_complex in[contour_size], out[contour_size];	
+		fftw_complex in[contour_size], out[contour_size], coeff[cmax-cmin+1];	
 		fftw_plan p;	
 		for(unsigned int i = 0; i < contour_size; i++){
 			in[i][0] = contour[i].x;
@@ -88,9 +90,24 @@ int main(int, char**)
 		fftw_destroy_plan(p);
 		fftw_cleanup();
 		for(unsigned int i = 0; i < contour_size; i++){
-			out[i][0] = in[i][0]/contour_size;
-			in[i][1] = in[i][1]/contour_size;
+			out[i][0] = out[i][0]/contour_size;
+			out[i][1] = out[i][1]/contour_size;
+			if(0<=i and i<cmax+1){
+				coeff[j][0] = out[i][0];
+				coeff[j][1] = out[i][1];
+				j++;
+			}
+			if(contour_size + cmin <= i and i < contour_size){
+				coeff[j][0] = out[i][0];
+				coeff[j][1] = out[i][1];
+				j++;
+			}
 		}
+		for(int i =0; i<21; i++){
+			std::cout << coeff[i][0] << ", " << coeff[i][1] << endl;
+		} 
+		
+
 		// std::cout << "Contour max: " << contour.size() << endl;
 		// for(int i =0; i<15; i++){
 		// 	std::cout << out[i][0] << ", " << out[i][1] << endl;
