@@ -2,9 +2,10 @@
 #include <complex>
 #include <iostream>
 #include <valarray>
+#include <complex>
 #include <fftw3.h>
+#include <opencv2/plot.hpp>
 
-using namespace plt = matplotlibcpp;
 using namespace cv;
 using namespace std;
 
@@ -81,37 +82,51 @@ int main(int, char**)
 		sum_x = sum_x/contour_size;
 		sum_y = sum_y/contour_size;
 		for(unsigned int i = 0; i < contour_size; i++){
-			in[i][0] = in[i][0]/sum_x;
-			in[i][1] = in[i][1]/sum_y;
+			in[i][0] = in[i][0] - sum_x;
+			in[i][1] = in[i][1] - sum_y;
 		}
 
 		p = fftw_plan_dft_1d(contour_size, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
 		fftw_execute(p);
 		fftw_destroy_plan(p);
 		fftw_cleanup();
+		int k1 = 0;
+		int k2 = 0;
 		for(unsigned int i = 0; i < contour_size; i++){
 			out[i][0] = out[i][0]/contour_size;
 			out[i][1] = out[i][1]/contour_size;
 			if(0<=i and i<cmax+1){
-				coeff[j][0] = out[i][0];
-				coeff[j][1] = out[i][1];
-				j++;
+				coeff[-cmin+j][0] = out[i][0];
+				coeff[-cmin+j][1] = out[i][1];
+				k1++;
 			}
 			if(contour_size + cmin <= i and i < contour_size){
-				coeff[j][0] = out[i][0];
-				coeff[j][1] = out[i][1];
-				j++;
+				coeff[k2][0] = out[i][0];
+				coeff[k2][1] = out[i][1];
+				k2++;
 			}
 		}
+		// int plop = coeff[-cmin]*coeff[-cmin+2];
+		// int phi = arg(plop);
 		for(int i =0; i<21; i++){
 			std::cout << coeff[i][0] << ", " << coeff[i][1] << endl;
 		} 
 		
+		Mat xData, yData, display;
+		Ptr<plot::Plot2d> plot;
+		xData.create(1, cmax-cmin+1, CV_64F);//1 Row, 100 columns, Double
+		yData.create(1, cmax-cmin+100, CV_64F);
 
-		// std::cout << "Contour max: " << contour.size() << endl;
-		// for(int i =0; i<15; i++){
-		// 	std::cout << out[i][0] << ", " << out[i][1] << endl;
-		// }
+		for(int i = 0; i<cmax-cmin+1; ++i)
+		{
+			xData.at<double>(i) = coeff[i][0];
+			yData.at<double>(i) = coeff[i][1];
+		}
+		plot = plot::createPlot2d(xData, yData);
+		plot->setPlotSize(10, 10);
+		plot->render(display);
+		imshow("Plot", display);
+
 		Mat Dessin = Mat::zeros(X,Y, CV_8UC1);
 		// for(numc = 0; numc < contours.size(); numc++ )
 		// 	drawContours( Dessin, contours, numc, 255);
