@@ -78,9 +78,11 @@ while True:
     Phi = np.angle(coeff[((cmax-cmin)//2)-1]*coeff[((cmax-cmin)//2)+1])/2
     coeff = coeff * np.exp(np.imag(-1)*Phi)
     
-    # depha = np.angle(coeff[((cmax-cmin)//2)+1])
-    # coeff = coeff * np.exp(np.imag(-1)*)
-    
+    depha = np.angle(coeff[((cmax-cmin)//2)+1])
+    for i in range(len(coeff)):
+        coeff[i] = coeff[i] * np.exp(np.imag(-1)*depha*(i-((cmax-cmin)//2)))
+    plt.scatter(coeff[:,0],coeff[:,1])
+    plt.show()
     # Display the resulting frame
     cv.imshow('frame', resized)
     cv.imshow('binaire', binary)
