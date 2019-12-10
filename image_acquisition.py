@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import cv2 as cv
 
 cap = cv.VideoCapture(0)

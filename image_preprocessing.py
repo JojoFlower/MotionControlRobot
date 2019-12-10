@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import pandas as pd
 import cv2 as cv
@@ -48,8 +50,8 @@ def findContours(binary, original):
 
 # Compute Fourier Descriptor
 def computeFourierDescriptor(contour):
-    cmin = -100
-    cmax = 100
+    cmin = -10
+    cmax = 10
 
     # When there is no contour
     if len(contour) == 0:
@@ -76,8 +78,8 @@ def computeFourierDescriptor(contour):
 
 # Reconstruction
 def reconstructFromDescriptor(coeff):
-    cmin = -100
-    cmax = 100
+    cmin = -10
+    cmax = 10
     N = 200
 
     TC = np.zeros(N,dtype=complex)
