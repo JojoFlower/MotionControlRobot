@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import cv2 as cv
 import cmath
 import matplotlib.pyplot as plt
@@ -17,6 +18,7 @@ def binary_filter(img):
     width = int(img.shape[1])
     height = int(img.shape[0])
     binary = np.zeros((height,width))
+
     for i in range(height):
         for j in range(width):
             pixel = img[i][j]
@@ -34,11 +36,13 @@ def findContours(binary, original):
     max_contour_length = 0
     max_contour_index = 0
     max_contour = np.array([])
+
     for (index,contour) in enumerate(contours):
         if(len(contour) > max_contour_length):
             max_contour_length = len(contour)
             max_contour_index = index
             max_contour = contour
+
     contour_image = cv.drawContours(original, contours, max_contour_index, (0,255,0), 3)
     return max_contour, contour_image
 
@@ -87,7 +91,14 @@ def reconstructFromDescriptor(coeff):
 
 # Dataset Generator
 def generateDataSet():
+    cmin = -100
+    cmax = 100
     labels = ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
+
+    columns = [f'z{i}' for i in range(cmax-cmin+1)]
+    columnsPlusY = [f'z{i}' for i in range(cmax-cmin+1)]
+    columnsPlusY.append('y')
+    dataset = pd.DataFrame(columns=columnsPlusY)
     # We extract 250 images per class
     for label in labels:
         for img_index in range(250):
@@ -95,8 +106,15 @@ def generateDataSet():
             img_blurred = gaussian_blur(img)
             img_binary = binary_filter(img_blurred)
             img_contour, img = findContours(img_binary, img)
-            coeff = computeFourierDescriptor(img_contour)
-            return coeff
+            try:
+                coeff = np.array(computeFourierDescriptor(img_contour))
+            except Exception:
+                pass
+            coeff_df = pd.Series(data=coeff,index=columns)
+            coeff_df['y'] = label
+            dataset = dataset.append(coeff_df, ignore_index=True)
+            print(label, img_index)
+    dataset.to_pickle("./dataset/coeff_dataset.pkl")
 
 # ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
 hand_position = 'open_hand'
