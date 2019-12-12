@@ -17,19 +17,26 @@ def gaussian_blur(img):
 # We filter the image by keeping the red if it's greater than the other components with a certain threshold
 def binary_filter(img):
     seuil = 30
-    width = int(img.shape[1])
-    height = int(img.shape[0])
-    binary = np.zeros((height,width))
+    # width = int(img.shape[1])
+    # height = int(img.shape[0])
+    # binary = np.zeros((height,width))
 
-    for i in range(height):
-        for j in range(width):
-            pixel = img[i][j]
-            B = pixel[0]
-            G = pixel[1]
-            R = pixel[2]
-            if max(R,G,B) == R and max(R,G,B)-min(R,G,B) >= seuil:
-                binary[i][j] = 1
-    return binary
+    # for i in range(height):
+    #     for j in range(width):
+    #         pixel = img[i][j]
+    #         B = pixel[0]
+    #         G = pixel[1]
+    #         R = pixel[2]
+    #         if max(R,G,B) == R and max(R,G,B)-min(R,G,B) >= seuil:
+    #             binary[i][j] = 1
+    # return binary
+
+    B_channel,G_channel,R_channel = cv.split(img)
+    R_over_B = R_channel-np.add(seuil,B_channel)
+    R_over_G = R_channel-np.add(seuil,G_channel)
+    R_over_G_and_B = np.add(R_over_B,R_over_G)
+    ret,thresh = cv.threshold(R_over_G_and_B,100,255,cv.THRESH_BINARY_INV)
+    return thresh
 
 # Now we find the contours, and we select the longest one
 def findContours(binary, original):
@@ -49,9 +56,7 @@ def findContours(binary, original):
     return max_contour, contour_image
 
 # Compute Fourier Descriptor
-def computeFourierDescriptor(contour):
-    cmin = -10
-    cmax = 10
+def computeFourierDescriptor(contour,cmin,cmax):
 
     # When there is no contour
     if len(contour) == 0:
@@ -109,7 +114,7 @@ def generateDataSet():
             img_binary = binary_filter(img_blurred)
             img_contour, img = findContours(img_binary, img)
             try:
-                coeff = np.array(computeFourierDescriptor(img_contour))
+                coeff = np.array(computeFourierDescriptor(img_contour,cmin,cmax))
             except Exception:
                 pass
             coeff_df = pd.Series(data=coeff,index=columns)
@@ -117,6 +122,8 @@ def generateDataSet():
             dataset = dataset.append(coeff_df, ignore_index=True)
             print(label, img_index)
     dataset.to_pickle("./dataset/coeff_dataset.pkl")
+
+generateDataSet()
 
 # ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
 hand_position = 'open_hand'

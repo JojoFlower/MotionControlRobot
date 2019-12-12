@@ -6,7 +6,7 @@ cap = cv.VideoCapture(0)
 image_counter = 0
 
 # ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
-hand_position = 'no_hand'
+hand_position = 'test'
 
 if not cap.isOpened():
     print("Cannot open camera")
