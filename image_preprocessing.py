@@ -17,26 +17,28 @@ def gaussian_blur(img):
 # We filter the image by keeping the red if it's greater than the other components with a certain threshold
 def binary_filter(img):
     seuil = 30
-    # width = int(img.shape[1])
-    # height = int(img.shape[0])
-    # binary = np.zeros((height,width))
+    width = int(img.shape[1])
+    height = int(img.shape[0])
+    binary = np.zeros((height,width))
 
-    # for i in range(height):
-    #     for j in range(width):
-    #         pixel = img[i][j]
-    #         B = pixel[0]
-    #         G = pixel[1]
-    #         R = pixel[2]
-    #         if max(R,G,B) == R and max(R,G,B)-min(R,G,B) >= seuil:
-    #             binary[i][j] = 1
-    # return binary
+    for i in range(height):
+        for j in range(width):
+            pixel = img[i][j]
+            B = pixel[0]
+            G = pixel[1]
+            R = pixel[2]
+            if max(R,G,B) == R and max(R,G,B)-min(R,G,B) >= seuil:
+                binary[i][j] = 1
+    return binary
 
+def quick_binary_filter(img):
+    seuil = 30
     B_channel,G_channel,R_channel = cv.split(img)
     R_over_B = R_channel-np.add(seuil,B_channel)
     R_over_G = R_channel-np.add(seuil,G_channel)
     R_over_G_and_B = np.add(R_over_B,R_over_G)
     ret,thresh = cv.threshold(R_over_G_and_B,100,255,cv.THRESH_BINARY_INV)
-    return thresh
+    return thresh    
 
 # Now we find the contours, and we select the longest one
 def findContours(binary, original):
@@ -123,20 +125,39 @@ def generateDataSet():
             print(label, img_index)
     dataset.to_pickle("./dataset/coeff_dataset.pkl")
 
-generateDataSet()
+def live_preprocessing(img):
+    cmin = -100
+    cmax = 100
+    img_blurred = gaussian_blur(img)
+    img_binary = quick_binary_filter(img_blurred)
+    img_contour, img = findContours(img_binary, img)
+    cv.imshow('binary', img_binary)
+    try:
+        coeffs = np.array(computeFourierDescriptor(img_contour,cmin,cmax))
+        formatted_coeffs = np.zeros((cmax-cmin+1,2))
+        for index,coeff in enumerate(coeffs):
+            formatted_coeffs[index] = [np.real(coeff), np.imag(coeff)]
+        return(False,formatted_coeffs)
+    except Exception:
+        pass
+        return(True,0)
+        
+    
 
-# ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
-hand_position = 'open_hand'
-img = cv.imread(f'./dataset/{hand_position}/{hand_position}_0.jpg', 1)
+# generateDataSet()
 
-img_blurred = gaussian_blur(img)
-img_binary = binary_filter(img_blurred)
-img_contour, img = findContours(img_binary, img)
+# # ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
+# hand_position = 'open_hand'
+# img = cv.imread(f'./dataset/{hand_position}/{hand_position}_0.jpg', 1)
 
-cv.imshow('img', img)
-cv.imshow('img_blurred', img_blurred)
-cv.imshow('img_binary', img_binary)
+# img_blurred = gaussian_blur(img)
+# img_binary = binary_filter(img_blurred)
+# img_contour, img = findContours(img_binary, img)
 
-# When everything done, release the capture
-cv.waitKey(0)
-cv.destroyAllWindows()
+# cv.imshow('img', img)
+# cv.imshow('img_blurred', img_blurred)
+# cv.imshow('img_binary', img_binary)
+
+# # When everything done, release the capture
+# cv.waitKey(0)
+# cv.destroyAllWindows()
