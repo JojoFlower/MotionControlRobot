@@ -1,0 +1,8 @@
+prefix=/home/jojoflower/Documents/MotionControlRobot/turtle_bot/devel
+
+Name: turtle_control
+Description: Description of turtle_control
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/jojoflower/Documents/MotionControlRobot/turtle_bot/devel/lib 
+Requires: 
