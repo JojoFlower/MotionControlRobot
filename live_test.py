@@ -3,8 +3,11 @@
 import cv2 as cv
 from keras.models import model_from_json
 import numpy as np
+import turtle as tu
+
 import image_preprocessing as ip
 import classifier as cl
+
 cap = cv.VideoCapture(0)
 image_counter = 0
 
@@ -12,12 +15,12 @@ image_counter = 0
 # hand_position = 'test'
 
 # load json and create model
-json_file = open('./networks/Conv8Conv4Drop05Dense32.json', 'r')
+json_file = open('./networks/Conv8Conv4Drop05Dense32Quick.json', 'r')
 loaded_model_json = json_file.read()
 json_file.close()
 loaded_model = model_from_json(loaded_model_json)
 # load weights into new model
-loaded_model.load_weights("./networks/Conv8Conv4Drop05Dense32E150B32.h5")
+loaded_model.load_weights("./networks/Conv8Conv4Drop05Dense32E150B32Quick.h5")
 print("Loaded model from disk")
  
 # evaluate loaded model on test data
@@ -48,10 +51,11 @@ while True:
 
     err,coeff = ip.live_preprocessing(frame)
     if(not err):
-        prediction = loaded_model.predict(np.array([coeff]),verbose=1)
-        print(cl.predictions_to_label(prediction))
+        predictions = loaded_model.predict(np.array([coeff]),verbose=0)
+        print(cl.max_prediction(predictions))
     else:
         print("Error while calculating fourrier descriptors")
+
 
     # Display the resulting frame
     cv.imshow('frame', frame)

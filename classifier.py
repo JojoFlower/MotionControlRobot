@@ -23,11 +23,20 @@ def predictions_to_label(predictions):
     labels = ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
     labels_score = {}
     for i,prediction in enumerate(predictions[0]):
-        print(prediction)
         label = labels[i]
         labels_score[label] = prediction
     return labels_score
 
+def max_prediction(predictions):
+    labels = ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
+    max_pred_score = 0
+    max_pred = 'no_hand'
+    for i,prediction in enumerate(predictions[0]):
+        if(prediction>max_pred_score):
+            max_pred_score = prediction
+            max_pred = labels[i]
+    return max_pred
+    
 def load_dataset(pickle_path):
     # Data Preprocessing
     df = pd.read_pickle(pickle_path)
@@ -92,7 +101,7 @@ def summarize_results(scores):
 # run an experiment
 def run_experiment(repeats=10):
 	# load data
-	X_train, X_test, y_train, y_test, input_shape = load_dataset('./dataset/coeff_dataset_quick.pkl')
+	X_train, X_test, y_train, y_test, input_shape = load_dataset('./dataset/coeff_dataset.pkl')
 	# repeat experiment
 	scores = list()
 	for r in range(repeats):

@@ -3,10 +3,10 @@
 import cv2 as cv
 
 cap = cv.VideoCapture(0)
-image_counter = 0
+image_counter = 251
 
 # ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
-hand_position = 'test'
+hand_position = 'tight_hand'
 
 if not cap.isOpened():
     print("Cannot open camera")
@@ -34,7 +34,7 @@ while True:
     cv.imwrite(f'./dataset/{hand_position}/{hand_position}_{image_counter}.jpg', frame) 
     image_counter += 1
     
-    if cv.waitKey(1) == ord('q') or image_counter == 301:
+    if cv.waitKey(1) == ord('q') or image_counter == 500:
         break
 
 # When everything done, release the capture
