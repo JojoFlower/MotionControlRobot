@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import numpy as np
 import pandas as pd
 import cv2 as cv
@@ -21,7 +20,7 @@ def binary_filter(img):
     width = int(img.shape[1])
     height = int(img.shape[0])
     binary = np.zeros((height, width))
-
+    
     for i in range(height):
         for j in range(width):
             pixel = img[i][j]
@@ -31,7 +30,6 @@ def binary_filter(img):
             if max(R, G, B) == R and max(R, G, B) - min(R, G, B) >= seuil:
                 binary[i][j] = 1
     return binary
-
 
 def quick_binary_filter(img):
     seuil = 30
@@ -94,8 +92,8 @@ def computeFourierDescriptor(contour, cmin, cmax):
 
 # Reconstruction
 def reconstructFromDescriptor(coeff):
-    cmin = -100
-    cmax = 100
+    cmin = -10
+    cmax = 10
     N = 200
 
     TC = np.zeros(N, dtype=complex)
@@ -104,7 +102,7 @@ def reconstructFromDescriptor(coeff):
     contfil = np.fft.ifft(TC) * N
 
     # Plot reconstructed contour
-    plt.plot(np.real(contfil), np.imag(contfil), "o")
+    plt.plot(np.real(contfil), np.imag(contfil), "-")
     plt.show()
 
 
@@ -154,20 +152,20 @@ def live_preprocessing(img):
         return (True, 0)
 
 
-# ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
-#hand_position = 'open_hand'
-#img = cv.imread(f'./dataset/{hand_position}/{hand_position}_0.jpg', 1)
-#
-#img_blurred = gaussian_blur(img)
-#img_binary = binary_filter(img_blurred)
-#img_contour, img = findContours(img_binary, img)
-#
-#cv.imshow('img', img)
-#cv.imshow('img_blurred', img_blurred)
-#cv.imshow('img_binary', img_binary)
-#
-#reconstructFromDescriptor(computeFourierDescriptor(img_contour, -100, 100))
-#
+# generateDataSet()
+
+# # ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
+# hand_position = 'open_hand'
+# img = cv.imread(f'./dataset/{hand_position}/{hand_position}_0.jpg', 1)
+
+# img_blurred = gaussian_blur(img)
+# img_binary = binary_filter(img_blurred)
+# img_contour, img = findContours(img_binary, img)
+
+# cv.imshow('img', img)
+# cv.imshow('img_blurred', img_blurred)
+# cv.imshow('img_binary', img_binary)
+
 # # When everything done, release the capture
-#cv.waitKey(0)
-#cv.destroyAllWindows()
+# cv.waitKey(0)
+# cv.destroyAllWindows()
