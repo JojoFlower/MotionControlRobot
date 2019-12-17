@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+
 import numpy as np
 import pandas as pd
 import cv2 as cv
 import cmath
 import matplotlib.pyplot as plt
+
 
 # We apply a gaussian filter to smooth the image
 def gaussian_blur(img):
@@ -20,7 +22,7 @@ def binary_filter(img):
     width = int(img.shape[1])
     height = int(img.shape[0])
     binary = np.zeros((height, width))
-    
+
     for i in range(height):
         for j in range(width):
             pixel = img[i][j]
@@ -31,13 +33,14 @@ def binary_filter(img):
                 binary[i][j] = 1
     return binary
 
+
 def quick_binary_filter(img):
     seuil = 30
     B_channel, G_channel, R_channel = cv.split(img)
     R_over_B = R_channel - np.add(seuil, B_channel)
     R_over_G = R_channel - np.add(seuil, G_channel)
     R_over_G_and_B = np.add(R_over_B, R_over_G)
-    ret, thresh = cv.threshold(R_over_G_and_B, 100, 255, cv.THRESH_BINARY_INV)
+    ret, thresh = cv.threshold(R_over_G_and_B, 150, 255, cv.THRESH_BINARY_INV)
     return thresh
 
 
@@ -92,8 +95,8 @@ def computeFourierDescriptor(contour, cmin, cmax):
 
 # Reconstruction
 def reconstructFromDescriptor(coeff):
-    cmin = -10
-    cmax = 10
+    cmin = -100
+    cmax = 100
     N = 200
 
     TC = np.zeros(N, dtype=complex)
@@ -102,7 +105,7 @@ def reconstructFromDescriptor(coeff):
     contfil = np.fft.ifft(TC) * N
 
     # Plot reconstructed contour
-    plt.plot(np.real(contfil), np.imag(contfil), "-")
+    plt.plot(np.real(contfil), np.imag(contfil), "o")
     plt.show()
 
 
@@ -116,12 +119,12 @@ def generateDataSet():
     columnsPlusY = [f"z{i}" for i in range(cmax - cmin + 1)]
     columnsPlusY.append("y")
     dataset = pd.DataFrame(columns=columnsPlusY)
-    # We extract 250 images per class
+    # We extract 500 images per class
     for label in labels:
-        for img_index in range(250):
+        for img_index in range(500):
             img = cv.imread(f"./dataset/{label}/{label}_{img_index}.jpg", 1)
             img_blurred = gaussian_blur(img)
-            img_binary = binary_filter(img_blurred)
+            img_binary = quick_binary_filter(img_blurred)
             img_contour, img = findContours(img_binary, img)
             try:
                 coeff = np.array(computeFourierDescriptor(img_contour, cmin, cmax))
@@ -155,8 +158,8 @@ def live_preprocessing(img):
 # generateDataSet()
 
 # # ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
-# hand_position = 'open_hand'
-# img = cv.imread(f'./dataset/{hand_position}/{hand_position}_0.jpg', 1)
+# hand_position = 'tight_hand'
+# img = cv.imread(f'./dataset/{hand_position}/{hand_position}_370.jpg', 1)
 
 # img_blurred = gaussian_blur(img)
 # img_binary = binary_filter(img_blurred)

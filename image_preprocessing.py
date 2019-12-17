@@ -6,6 +6,7 @@ import cv2 as cv
 import cmath
 import matplotlib.pyplot as plt
 
+
 # We apply a gaussian filter to smooth the image
 def gaussian_blur(img):
     sigmaX = 1.5
@@ -39,7 +40,7 @@ def quick_binary_filter(img):
     R_over_B = R_channel - np.add(seuil, B_channel)
     R_over_G = R_channel - np.add(seuil, G_channel)
     R_over_G_and_B = np.add(R_over_B, R_over_G)
-    ret, thresh = cv.threshold(R_over_G_and_B, 100, 255, cv.THRESH_BINARY_INV)
+    ret, thresh = cv.threshold(R_over_G_and_B, 150, 255, cv.THRESH_BINARY_INV)
     return thresh
 
 
@@ -118,12 +119,12 @@ def generateDataSet():
     columnsPlusY = [f"z{i}" for i in range(cmax - cmin + 1)]
     columnsPlusY.append("y")
     dataset = pd.DataFrame(columns=columnsPlusY)
-    # We extract 250 images per class
+    # We extract 500 images per class
     for label in labels:
-        for img_index in range(250):
+        for img_index in range(500):
             img = cv.imread(f"./dataset/{label}/{label}_{img_index}.jpg", 1)
             img_blurred = gaussian_blur(img)
-            img_binary = binary_filter(img_blurred)
+            img_binary = quick_binary_filter(img_blurred)
             img_contour, img = findContours(img_binary, img)
             try:
                 coeff = np.array(computeFourierDescriptor(img_contour, cmin, cmax))
@@ -154,20 +155,20 @@ def live_preprocessing(img):
         return (True, 0)
 
 
-# ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
-#hand_position = 'open_hand'
-#img = cv.imread(f'./dataset/{hand_position}/{hand_position}_0.jpg', 1)
-#
-#img_blurred = gaussian_blur(img)
-#img_binary = binary_filter(img_blurred)
-#img_contour, img = findContours(img_binary, img)
-#
-#cv.imshow('img', img)
-#cv.imshow('img_blurred', img_blurred)
-#cv.imshow('img_binary', img_binary)
-#
-#reconstructFromDescriptor(computeFourierDescriptor(img_contour, -100, 100))
-#
+# generateDataSet()
+
+# # ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
+# hand_position = 'tight_hand'
+# img = cv.imread(f'./dataset/{hand_position}/{hand_position}_370.jpg', 1)
+
+# img_blurred = gaussian_blur(img)
+# img_binary = binary_filter(img_blurred)
+# img_contour, img = findContours(img_binary, img)
+
+# cv.imshow('img', img)
+# cv.imshow('img_blurred', img_blurred)
+# cv.imshow('img_binary', img_binary)
+
 # # When everything done, release the capture
-#cv.waitKey(0)
-#cv.destroyAllWindows()
+# cv.waitKey(0)
+# cv.destroyAllWindows()

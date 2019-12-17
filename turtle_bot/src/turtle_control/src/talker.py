@@ -57,8 +57,7 @@ if __name__ == "__main__":
             err, coeff = ip.live_preprocessing(frame)
             if not err:
                 prediction = loaded_model.predict(np.array([coeff]), verbose=1)
-                prediction = cl.predictions_to_label(prediction)
-                output = max(prediction, key=prediction.get)
+                output = cl.max_prediction(prediction)
                 print(output)
 
                 if output == 'open_hand':
