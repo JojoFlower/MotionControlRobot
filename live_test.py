@@ -15,11 +15,7 @@ image_counter = 0
 # hand_position = 'test'
 
 # load json and create model
-<<<<<<< HEAD
 json_file = open('./networks/Conv8Conv4Drop05Dense32Quick.json', 'r')
-=======
-json_file = open("./networks/Conv8Conv4Drop05Dense32.json", "r")
->>>>>>> d6f727e905fe63859b2a1b7e879909595ff3c255
 loaded_model_json = json_file.read()
 json_file.close()
 loaded_model = model_from_json(loaded_model_json)
