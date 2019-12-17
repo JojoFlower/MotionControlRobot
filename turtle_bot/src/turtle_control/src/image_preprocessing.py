@@ -34,13 +34,14 @@ def binary_filter(img):
 
 
 def quick_binary_filter(img):
-    seuil = 20
-    B_channel,G_channel,R_channel = cv.split(img)
-    R_over_B = R_channel-np.add(seuil,B_channel)
-    R_over_G = R_channel-np.add(seuil,G_channel)
-    R_over_G_and_B = np.add(R_over_B,R_over_G)
-    ret,thresh = cv.threshold(R_over_G_and_B,150,255,cv.THRESH_BINARY_INV)
-    return thresh    
+    seuil = 30
+    B_channel, G_channel, R_channel = cv.split(img)
+    R_over_B = R_channel - np.add(seuil, B_channel)
+    R_over_G = R_channel - np.add(seuil, G_channel)
+    R_over_G_and_B = np.add(R_over_B, R_over_G)
+    ret, thresh = cv.threshold(R_over_G_and_B, 100, 255, cv.THRESH_BINARY_INV)
+    return thresh
+
 
 # Now we find the contours, and we select the longest one
 def findContours(binary, original):
@@ -119,10 +120,10 @@ def generateDataSet():
     dataset = pd.DataFrame(columns=columnsPlusY)
     # We extract 250 images per class
     for label in labels:
-        for img_index in range(500):
-            img = cv.imread(f'./dataset/{label}/{label}_{img_index}.jpg', 1)
+        for img_index in range(250):
+            img = cv.imread(f"./dataset/{label}/{label}_{img_index}.jpg", 1)
             img_blurred = gaussian_blur(img)
-            img_binary = quick_binary_filter(img_blurred)
+            img_binary = binary_filter(img_blurred)
             img_contour, img = findContours(img_binary, img)
             try:
                 coeff = np.array(computeFourierDescriptor(img_contour, cmin, cmax))
@@ -156,8 +157,8 @@ def live_preprocessing(img):
 # generateDataSet()
 
 # # ['close_hand', 'no_hand', 'open_hand', 'side_hand', 'tight_hand']
-# hand_position = 'tight_hand'
-# img = cv.imread(f'./dataset/{hand_position}/{hand_position}_370.jpg', 1)
+# hand_position = 'open_hand'
+# img = cv.imread(f'./dataset/{hand_position}/{hand_position}_0.jpg', 1)
 
 # img_blurred = gaussian_blur(img)
 # img_binary = binary_filter(img_blurred)
