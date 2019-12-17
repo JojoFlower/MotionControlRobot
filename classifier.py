@@ -142,13 +142,13 @@ def summarize_results(scores):
 def run_experiment(repeats=10):
     # load data
     X_train, X_test, y_train, y_test, input_shape = load_dataset(
-        "./dataset/coeff_dataset_quick.pkl"
+        "./dataset/coeff_dataset.pkl"
     )
     # repeat experiment
     scores = list()
     for r in range(repeats):
         score = evaluate_model(
-            X_train, X_test, y_train, y_test, input_shape, True, True
+            X_train, X_test, y_train, y_test, input_shape, False, False
         )
         score = score * 100.0
         print(">#%d: %.3f" % (r + 1, score))
@@ -158,7 +158,7 @@ def run_experiment(repeats=10):
 
 
 # run the experiment
-# run_experiment(1)
+run_experiment(1)
 
 
 # # later...
