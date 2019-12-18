@@ -1,0 +1,6 @@
+Comment lancer la démonstration en live:
+1- Ouvrir 3 terminaux
+2- Sourcer le package turtle_bot pour chaque terminal: source devel/setup.bash ou source devel/setup.sh
+3- Lancer le noeud master de ROS dans un terminal: roscore
+4- Lancer le noeud du Turtle Bot dans un autre terminal: rosrun turtlesim turtlesim_node
+5- Dans le dernier terminal, se placer dans le répertoire du fichier talker.py et lancer "rosrun turtle_control talker.py"

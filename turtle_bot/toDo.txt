@@ -1,5 +1,0 @@
-source devel/setup.zsh
-roscore
-rosrun turtlesim turtlesim_node
-rosrun turtle_control talker.py
-rosrun rqt_graph rqt_graph
